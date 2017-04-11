@@ -1,0 +1,12 @@
+#ifndef INLOQUENT_GLOBAL_H
+#define INLOQUENT_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(INLOQUENT_LIBRARY)
+#  define INLOQUENTSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define INLOQUENTSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // INLOQUENT_GLOBAL_H

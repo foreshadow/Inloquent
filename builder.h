@@ -13,11 +13,16 @@ class Builder
 public:
     Builder(const QString &table);
 
+    bool insert(Model &model);
+    bool update(Model &model);
+
     Builder &where(const QString &key, const QString &op, const QVariant &value);
     Builder &where(const QString &key, const QVariant &value);
 
+    Builder &take(int count);
     Collection get(const QString &column = "*") const;
-    Model first() const;
+    Model first();
+    Model firstOrFail();
 
 private:
     static QString escapeKey(const QString &key);

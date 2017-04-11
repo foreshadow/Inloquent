@@ -1,14 +1,22 @@
-#include <QCoreApplication>
+#include <bits/stdc++.h>
+#include "model.h"
+#include "user.h"
 
 #include <QSqlDatabase>
 
-#include "user.h"
+using namespace std;
 
-int main(int argc, char *argv[])
+int main(int, char *[])
 {
-    QCoreApplication a(argc, argv);
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL3");
-    User u1 = User::find(2);
-    User u2 = User::where("name", "infinity").first();
-    return a.exec();
+    db.setHostName("localhost");
+    db.setPort(3306);
+    db.setDatabaseName("homestead");
+    db.setUserName("root");
+    db.setPassword("secret");
+
+    User user;
+    cout << user.User::tableName().toStdString() << endl;
+    cout << user.find(1).getInt("id") << endl;
+    return 0;
 }
