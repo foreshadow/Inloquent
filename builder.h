@@ -16,17 +16,19 @@ public:
     bool insert(Model &model);
     bool update(Model &model);
 
-    Builder &where(const QString &key, const QString &op, const QVariant &value);
+    Builder &where(const QString &key, const QString &op, const QVariant &value, const QString &boolean = "and");
     Builder &where(const QString &key, const QVariant &value);
 
-    Builder &take(int count);
+    Builder &take(int limit);
+    Builder &skip(int offset);
     Collection get(const QString &column = "*") const;
     Model first();
     Model firstOrFail();
 
 private:
-    static QString escapeKey(const QString &key);
-    static QString escapeValue(QVariant value);
+    QString escapeTable();
+    QString escapeKey(const QString &key);
+    QString escapeValue(const QVariant &value);
 
 protected:
     QString tableClause;
@@ -34,7 +36,7 @@ protected:
     QString groupByClause;
     QString havingClause;
     QString orderByClause;
-    int count;
+    int limit;
     int offset;
 };
 

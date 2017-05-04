@@ -1,6 +1,7 @@
 #include "model.h"
 
 #include <QDebug>
+#include "inloquent/db.h"
 
 Model::Model() :
     exists(false), valid(true)
@@ -43,6 +44,28 @@ QStringList Model::dirtyKeys() const
             dirty.append(key);
     }
     return dirty;
+}
+
+QString Model::created_at() const
+{
+    return "created_at";
+}
+
+QString Model::updated_at() const
+{
+    return "updated_at";
+}
+
+bool Model::useTimestamps() const
+{
+    return true;
+}
+
+void Model::touch()
+{
+    if (useTimestamps()) {
+        set(updated_at(), DB::sqlTime());
+    }
 }
 
 Model::operator bool() const

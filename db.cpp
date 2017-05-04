@@ -1,5 +1,6 @@
 #include "db.h"
 
+#include <QDateTime>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QDebug>
@@ -11,11 +12,8 @@ bool DB::initialize(const QString &driver, const QString &database,
     db.setDatabaseName(database);
     db.setUserName(username);
     db.setPassword(password);
-    if (db.open()) {
-        qDebug("数据库连接成功。");
-    } else {
-        qDebug("数据库连接失败。");
-        qDebug() << db.lastError().text();
+    if (db.open() == false) {
+        errorMessage = db.lastError().text();
     }
     return db.isOpen();
 }
@@ -24,3 +22,15 @@ Builder DB::table(const QString &table)
 {
     return Builder(table);
 }
+
+QString DB::lastErrorMessage()
+{
+    return errorMessage;
+}
+
+QString DB::sqlTime(int relativeSeconds)
+{
+    return QDateTime::currentDateTime().addSecs(relativeSeconds).toString("yyyy-MM-dd HH:mm:ss");
+}
+
+QString DB::errorMessage;

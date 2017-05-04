@@ -23,6 +23,11 @@ public:
     virtual int id() const;
     QStringList dirtyKeys() const;
 
+    virtual QString created_at() const;
+    virtual QString updated_at() const;
+    virtual bool useTimestamps() const;
+    void touch();
+
     operator bool() const;
 
     static Model invalid();
