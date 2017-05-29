@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <initializer_list>
 #include <QMap>
 #include <QSet>
 #include <QString>
@@ -14,6 +15,8 @@ class Model : public QMap<QString, QVariant>
 
 public:
     Model();
+    Model(const QMap<QString, QVariant> &map);
+//    Model(const std::initializer_list<std::initializer_list<QString> > &list);
     virtual ~Model();
 
     QString get(const QString &key) const;

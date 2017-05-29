@@ -16,6 +16,8 @@
         {} \
         class_(Model model) : Model(model) \
         {} \
+        class_(const QMap<QString, QVariant> &map) : Model(map)\
+        {} \
         static QString className() \
         { return #class_; } \
         static QString table() \
@@ -40,8 +42,10 @@
         BUILDER_ADAPTER(where) \
     private:
 
+/*
 #define INLOQUENT_MODEL_CLASS(class_) \
     class class_ : public Model \
     { INLOQUENT_MODEL(class_, class_, id) };
+*/
 
 #endif // INLOQUENTMODEL_H

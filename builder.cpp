@@ -34,7 +34,7 @@ bool Builder::insert(Model &model)
         model.exists = true;
         return true;
     } else {
-        qDebug() << query.lastError().text();
+//        qDebug() << query.lastError().text();
         return false;
     }
 }

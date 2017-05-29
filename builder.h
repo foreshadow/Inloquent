@@ -21,6 +21,7 @@ public:
 
     Builder &take(int limit);
     Builder &skip(int offset);
+
     Collection get(const QString &column = "*") const;
     Model first();
     Model firstOrFail();

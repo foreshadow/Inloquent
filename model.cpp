@@ -4,9 +4,23 @@
 #include "inloquent/db.h"
 
 Model::Model() :
-    exists(false), valid(true)
+    QMap<QString, QVariant>(), exists(false), valid(true)
 {
 }
+
+Model::Model(const QMap<QString, QVariant> &map) :
+    QMap<QString, QVariant>(map)
+{
+
+}
+
+//Model::Model(const std::initializer_list<std::initializer_list<QString>> &list) :
+//    Model()
+//{
+//    for (std::initializer_list<QString> p : list) {
+//        insert(*p.begin(), *std::next(p.begin()));
+//    }
+//}
 
 Model::~Model()
 {
