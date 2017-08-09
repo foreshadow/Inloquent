@@ -1,19 +1,19 @@
 #include "model.h"
 
 #include <QDebug>
-#include "inloquent/db.h"
+#include "db.h"
 
 Model::Model() :
-    QMap<QString, QVariant>(),
     exists(false),
-    valid(true)
+    data(),
+    original()
 {
 }
 
 Model::Model(const QMap<QString, QVariant> &map) :
-    QMap<QString, QVariant>(map),
     exists(false),
-    valid(true)
+    data(map),
+    original()
 {
 }
 
@@ -23,22 +23,22 @@ Model::~Model()
 
 QString Model::get(const QString &key) const
 {
-    return value(key).toString();
+    return data.value(key).toString();
 }
 
 int Model::getInt(const QString &key) const
 {
     bool ok = true;
-    int intValue = value(key).toInt(&ok);
+    int intValue = data.value(key).toInt(&ok);
     if (!ok)
-        qDebug("Not a int value: trying to convert %s = %s to integer.",
-               key.toLatin1().data(), value(key).toString().toLatin1().data());
+        qDebug("Not a int value: trying to convert %s = `%s' to integer.",
+               key.toLatin1().data(), data.value(key).toString().toLatin1().data());
     return intValue;
 }
 
 void Model::set(const QString &key, const QVariant &value)
 {
-    (*this)[key] = value;
+    data[key] = value;
 }
 
 int Model::id() const
@@ -46,11 +46,16 @@ int Model::id() const
     return getInt("id");
 }
 
+QStringList Model::keys() const
+{
+    return data.keys();
+}
+
 QStringList Model::dirtyKeys() const
 {
     QStringList dirty;
-    for (QString key : keys()) {
-        if (original.count(key) == 0 || value(key) != original.value(key))
+    for (QString key : data.keys()) {
+        if (original.count(key) == 0 || data.value(key) != original.value(key))
             dirty.append(key);
     }
     return dirty;
@@ -79,15 +84,53 @@ void Model::touch()
 
 Model::operator bool() const
 {
-    return valid;
+    return data.size() || original.size();
 }
 
-Model Model::invalid()
+Model::AttributeRef Model::operator [](const char *key)
 {
-    return Model(Flag::INVALID);
+    return AttributeRef(*this, key);
 }
 
-Model::Model(Model::Flag) :
-    valid(false)
+Model::AttributeRef Model::operator [](const QString &key)
 {
+    return AttributeRef(*this, key);
+}
+
+void Model::saved()
+{
+    exists = true;
+    original = data;
+}
+
+Model::AttributeRef::AttributeRef(Model &model, const QString &key) :
+    model(model),
+    key(key)
+{
+}
+
+QVariant &Model::AttributeRef::operator =(const QVariant &value) const
+{
+    model.set(key, value);
+    return model.data[key];
+}
+
+QString Model::AttributeRef::toString() const
+{
+    return model.get(key);
+}
+
+Model::AttributeRef::operator QString() const
+{
+    return model.get(key);
+}
+
+Model::AttributeRef::operator int() const
+{
+    return model.getInt(key);
+}
+
+Model::AttributeRef::operator QVariant() const
+{
+    return model.data[key];
 }

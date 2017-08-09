@@ -35,16 +35,16 @@
         template<class T> Collection hasMany(const QString &foreignKey = className().toLower() + "_" + primaryKey(), const QString &localKey = primaryKey()) const \
         { return Builder(T::table()).where(foreignKey, get(localKey)).get(); } \
         template<class T> T hasOne(const QString &foreignKey = className().toLower() + "_" + primaryKey(), const QString &localKey = primaryKey()) const \
-        { return Builder(T::table()).where(foreignKey, get(localKey)).firstOrFail(); } \
+        { return Builder(T::table()).where(foreignKey, get(localKey)).first(); } \
         template<class T> Collection belongsToMany(const QString &foreignKey = className().toLower() + "_" + primaryKey(), const QString &localKey = primaryKey()) const \
         { return Builder(T::table()).where(localKey, get(foreignKey)).get(); } \
         template<class T> T belongsTo(const QString &foreignKey = className().toLower() + "_" + primaryKey(), const QString &localKey = primaryKey()) const \
-        { return Builder(T::table()).where(localKey, get(foreignKey)).firstOrFail(); } \
+        { return Builder(T::table()).where(localKey, get(foreignKey)).first(); } \
         BUILDER_ADAPTER(where) \
         /* debug */ \
-        void dump() const \
+        void dump() \
         { qDebug() << className(); for (QString key : this->keys()) qDebug("%s: %s,", key.toLatin1().data(), (*this)[key].toString().toLatin1().data()); } \
-        void dump(const QString &key) const \
+        void dump(const QString &key) \
         { qDebug() << className(); qDebug("%s: %s,", key.toLatin1().data(), (*this)[key].toString().toLatin1().data()); } \
     private:
 

@@ -1,22 +1,32 @@
 #include <bits/stdc++.h>
 #include "model.h"
-#include "user.h"
-
-#include <QSqlDatabase>
+#include "db.h"
 
 using namespace std;
 
+class User : public Model
+{
+    INLOQUENT_MODEL(User, users, id);
+};
+
 int main(int, char *[])
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL3");
-    db.setHostName("localhost");
-    db.setPort(3306);
-    db.setDatabaseName("homestead");
-    db.setUserName("root");
-    db.setPassword("secret");
+    if (DB::initialize("QMYSQL", "localhost", 3306, "test", "root", "secret") == false)
+        cout << DB::lastErrorMessage().toStdString() << endl;
+
+    bool ok = DB::createIfNotExists("users", [](BluePrint *table){
+        table->increment("id");
+        table->string("name")->unique();
+        table->timestamps();
+    });
+    if (ok == false)
+        qDebug() << DB::lastErrorMessage();
 
     User user;
-    cout << user.User::tableName().toStdString() << endl;
-    cout << user.find(1).getInt("id") << endl;
+    user.set("name", "Infinity");
+    if (user.save() == false)
+        qDebug() << DB::lastErrorMessage();
+    Q_ASSERT(User::find(1).get("name") == "Infinity");
+    Q_ASSERT(User::where("name", "Infinity").first()["id"] == 1);
     return 0;
 }

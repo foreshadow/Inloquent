@@ -1,10 +1,11 @@
 #include "builder.h"
 
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QSqlError>
 #include <QDebug>
-#include "inloquent/db.h"
+#include <QSqlError>
+#include <QSqlRecord>
+#include <QTime>
+#include <QTimer>
+#include "db.h"
 
 Builder::Builder(const QString &table) :
     tableClause(table),
@@ -27,16 +28,12 @@ bool Builder::insert(Model &model)
     }
     QString queryStatement = QString("insert into %1 (%2) values (%3)")
                              .arg(escapeTable()).arg(columns.join(", ")).arg(values.join(", "));
-//    qDebug(queryStatement.toLocal8Bit().data());
-    QSqlQuery query;
-    if (query.exec(queryStatement)) {
-        // TODO: if there is a key "id", it must be int+pk
+    if (Query query = exec(queryStatement)) {
+        // TODO: if there is a key "id", it must be int + pk
         model.set("id", query.lastInsertId());
-        model.exists = true;
-        model.original = model;
+        model.saved();
         return true;
     } else {
-        DB::setErrorMessage(query.lastError().text());
         return false;
     }
 }
@@ -57,13 +54,10 @@ bool Builder::update(Model &model)
         qDebug() << "No WHERE clause in update operation, stop.";
         return false;
     }
-//    qDebug(queryStatement.toLocal8Bit().data());
-    QSqlQuery query;
-    if (query.exec(queryStatement)) {
-        model.original = model;
+    if (Query query = exec(queryStatement)) {
+        model.saved();
         return true;
     } else {
-        DB::setErrorMessage(query.lastError().text());
         return false;
     }
 }
@@ -108,17 +102,14 @@ Collection Builder::get(const QString &column) const
         queryStatement += QString(" limit %1, %2").arg(offset).arg(limit);
     else if (limit)
         queryStatement += QString(" limit %1").arg(limit);
-//    qDebug(queryStatement.toLocal8Bit().data());
-    QSqlQuery query;
     Collection collection;
-    if (query.exec(queryStatement)) {
+    if (Query query = exec(queryStatement)) {
         QSqlRecord record = query.record();
         while (query.next()) {
             Model m;
-            m.exists = true;
             for (int i = 0; i < record.count(); i++)
-                m.insert(record.fieldName(i), query.value(i).toString());
-            m.original = m;
+                m.set(record.fieldName(i), query.value(i).toString());
+            m.saved();
             collection.append(m);
         }
     }
@@ -127,26 +118,26 @@ Collection Builder::get(const QString &column) const
 
 Model Builder::first()
 {
-    return take(1).get().first();
-}
-
-Model Builder::firstOrFail()
-{
     Collection collection = take(1).get();
-    return collection.size() ? collection.first() : Model::invalid();
+    return collection.size() ? collection.first() : Model();
 }
 
-QString Builder::escapeTable()
+Builder::Query Builder::exec(const QString &statement)
+{
+    return Query(statement);
+}
+
+QString Builder::escapeTable() const
 {
     return QString("`%1`").arg(tableClause);
 }
 
-QString Builder::escapeKey(const QString &key)
+QString Builder::escapeKey(const QString &key) const
 {
     return QString("`%1`.`%2`").arg(tableClause).arg(key);
 }
 
-QString Builder::escapeValue(const QVariant &value)
+QString Builder::escapeValue(const QVariant &value) const
 {
     switch (value.type()) {
     case QVariant::Bool:
@@ -156,4 +147,22 @@ QString Builder::escapeValue(const QVariant &value)
     default:
         return QString("'%1'").arg(value.toString().replace("'", "\'"));
     }
+}
+
+
+Builder::Query::Query(const QString &statement) :
+    QSqlQuery(),
+    succeeded(false)
+{
+    QTime t;
+    t.start();
+    if ((succeeded = exec(statement)) == false) {
+        DB::setErrorMessage(lastError().text());
+    }
+    qDebug(QString("[SqlQuery] %1 ms, %2").arg(t.elapsed(), 2).arg(statement).toLocal8Bit());
+}
+
+Builder::Query::operator bool()
+{
+    return succeeded;
 }

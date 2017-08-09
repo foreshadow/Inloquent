@@ -1,17 +1,28 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <initializer_list>
 #include <QMap>
-#include <QSet>
 #include <QString>
 #include <QVariant>
 
-class Model : public QMap<QString, QVariant>
+class Model
 {
     friend class Builder;
 
-    enum class Flag { INVALID };
+    class AttributeRef
+    {
+    public:
+        AttributeRef(Model &model, const QString &key);
+        QVariant &operator =(const QVariant &value) const;
+        QString toString() const;
+        operator QVariant() const;
+        operator QString() const;
+        operator int() const;
+
+    protected:
+        Model &model;
+        QString key;
+    };
 
 public:
     Model();
@@ -23,6 +34,7 @@ public:
     void set(const QString &key, const QVariant &value);
 
     virtual int id() const;
+    QStringList keys() const;
     QStringList dirtyKeys() const;
 
     virtual QString created_at() const;
@@ -30,17 +42,22 @@ public:
     virtual bool useTimestamps() const;
     void touch();
 
+    /**
+     * If the QMap (base class) and original is both empty,
+     * this Model is considered to be invalid, vise versa.
+     */
     operator bool() const;
 
-    static Model invalid();
+    AttributeRef operator [](const char *key);
+    AttributeRef operator [](const QString &key);
 
     bool exists;
 
 private:
-    Model(Flag);
-    bool valid;
+    void saved();
 
 protected:
+    QMap<QString, QVariant> data;
     QMap<QString, QVariant> original;
 };
 
