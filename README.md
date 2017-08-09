@@ -4,7 +4,7 @@ Inloquent is a C++ Qt version of PHP Laravel Eloquent ORM.
 
 It provides a easy access to the database.
 
-```
+```cpp
 for (User user : User::where("name", "Infinity")) {
     for (Article article : user.hasMany<Article>()) {
         for (Comment comment : article.hasMany<Comment>()) {    
@@ -32,7 +32,7 @@ for (User user : User::where("name", "Infinity")) {
 Unavailable, early development.
 
 ## Example
-```
+```cpp
 #include "model.h"
 #include "db.h"
 
