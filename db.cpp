@@ -13,7 +13,7 @@ bool DB::initialize(const QString &driver, const QString &database,
     db.setUserName(username);
     db.setPassword(password);
     if (db.open() == false) {
-        errorMessage = db.lastError().text();
+        setErrorMessage(db.lastError().text());
     }
     return db.isOpen();
 }
@@ -31,6 +31,11 @@ QString DB::lastErrorMessage()
 QString DB::sqlTime(int relativeSeconds)
 {
     return QDateTime::currentDateTime().addSecs(relativeSeconds).toString("yyyy-MM-dd HH:mm:ss");
+}
+
+void DB::setErrorMessage(const QString &error)
+{
+    errorMessage = error;
 }
 
 QString DB::errorMessage;

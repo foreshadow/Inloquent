@@ -1,6 +1,7 @@
 #ifndef INLOQUENTMODEL_H
 #define INLOQUENTMODEL_H
 
+#include <QDebug>
 #include <QString>
 #include "builder.h"
 #include "collection.h"
@@ -40,6 +41,11 @@
         template<class T> T belongsTo(const QString &foreignKey = className().toLower() + "_" + primaryKey(), const QString &localKey = primaryKey()) const \
         { return Builder(T::table()).where(localKey, get(foreignKey)).firstOrFail(); } \
         BUILDER_ADAPTER(where) \
+        /* debug */ \
+        void dump() const \
+        { qDebug() << className(); for (QString key : this->keys()) qDebug("%s: %s,", key.toLatin1().data(), (*this)[key].toString().toLatin1().data()); } \
+        void dump(const QString &key) const \
+        { qDebug() << className(); qDebug("%s: %s,", key.toLatin1().data(), (*this)[key].toString().toLatin1().data()); } \
     private:
 
 /*

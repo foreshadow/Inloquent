@@ -4,23 +4,18 @@
 #include "inloquent/db.h"
 
 Model::Model() :
-    QMap<QString, QVariant>(), exists(false), valid(true)
+    QMap<QString, QVariant>(),
+    exists(false),
+    valid(true)
 {
 }
 
 Model::Model(const QMap<QString, QVariant> &map) :
-    QMap<QString, QVariant>(map)
+    QMap<QString, QVariant>(map),
+    exists(false),
+    valid(true)
 {
-
 }
-
-//Model::Model(const std::initializer_list<std::initializer_list<QString>> &list) :
-//    Model()
-//{
-//    for (std::initializer_list<QString> p : list) {
-//        insert(*p.begin(), *std::next(p.begin()));
-//    }
-//}
 
 Model::~Model()
 {
@@ -36,7 +31,8 @@ int Model::getInt(const QString &key) const
     bool ok = true;
     int intValue = value(key).toInt(&ok);
     if (!ok)
-        qDebug() << "Not a int value";
+        qDebug("Not a int value: trying to convert %s = %s to integer.",
+               key.toLatin1().data(), value(key).toString().toLatin1().data());
     return intValue;
 }
 
@@ -77,9 +73,8 @@ bool Model::useTimestamps() const
 
 void Model::touch()
 {
-    if (useTimestamps()) {
+    if (useTimestamps())
         set(updated_at(), DB::sqlTime());
-    }
 }
 
 Model::operator bool() const
@@ -95,5 +90,4 @@ Model Model::invalid()
 Model::Model(Model::Flag) :
     valid(false)
 {
-
 }

@@ -7,7 +7,7 @@
 class Collection : public QList<Model>
 {
 public:
-    Collection();
+    operator bool() const;
 };
 
 #endif // COLLECTION_H

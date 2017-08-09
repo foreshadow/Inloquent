@@ -27,14 +27,16 @@ bool Builder::insert(Model &model)
     }
     QString queryStatement = QString("insert into %1 (%2) values (%3)")
                              .arg(escapeTable()).arg(columns.join(", ")).arg(values.join(", "));
+//    qDebug(queryStatement.toLocal8Bit().data());
     QSqlQuery query;
     if (query.exec(queryStatement)) {
-        // TODO: primarkey?
+        // TODO: if there is a key "id", it must be int+pk
         model.set("id", query.lastInsertId());
         model.exists = true;
+        model.original = model;
         return true;
     } else {
-//        qDebug() << query.lastError().text();
+        DB::setErrorMessage(query.lastError().text());
         return false;
     }
 }
@@ -55,12 +57,13 @@ bool Builder::update(Model &model)
         qDebug() << "No WHERE clause in update operation, stop.";
         return false;
     }
+//    qDebug(queryStatement.toLocal8Bit().data());
     QSqlQuery query;
     if (query.exec(queryStatement)) {
         model.original = model;
         return true;
     } else {
-        qDebug() << query.lastError().text();
+        DB::setErrorMessage(query.lastError().text());
         return false;
     }
 }
@@ -101,8 +104,11 @@ Collection Builder::get(const QString &column) const
         queryStatement += QString(" having %1").arg(havingClause);
     if (orderByClause.size())
         queryStatement += QString(" order by %1").arg(orderByClause);
-    if (limit)
+    if (offset)
         queryStatement += QString(" limit %1, %2").arg(offset).arg(limit);
+    else if (limit)
+        queryStatement += QString(" limit %1").arg(limit);
+//    qDebug(queryStatement.toLocal8Bit().data());
     QSqlQuery query;
     Collection collection;
     if (query.exec(queryStatement)) {

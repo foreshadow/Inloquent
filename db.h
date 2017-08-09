@@ -7,6 +7,8 @@
 
 class DB
 {
+    friend class Builder;
+
 public:
     static bool initialize(const QString &driver, const QString &database,
                            const QString &username, const QString &password);
@@ -14,6 +16,9 @@ public:
     static QString lastErrorMessage();
 
     static QString sqlTime(int relativeSeconds = 0);
+
+private:
+    static void setErrorMessage(const QString &error = QString());
 
 protected:
     static QString errorMessage;

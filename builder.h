@@ -11,7 +11,7 @@ class Collection;
 class Builder
 {
 public:
-    Builder(const QString &table);
+    explicit Builder(const QString &table);
 
     bool insert(Model &model);
     bool update(Model &model);

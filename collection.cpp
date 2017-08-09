@@ -1,5 +1,6 @@
 #include "collection.h"
 
-Collection::Collection()
+Collection::operator bool() const
 {
+    return !!size();
 }
